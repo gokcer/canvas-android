@@ -92,8 +92,8 @@ void main() {
     await setupPlatformChannels();
 
     Login user = Login((b) => b
-      ..accessToken = 'token'
-      ..refreshToken = 'refresh'
+//      ..accessToken = 'token'
+//      ..refreshToken = 'refresh'
       ..domain = 'domain'
       ..clientId = 'clientId'
       ..clientSecret = 'clientSecret'
@@ -101,8 +101,8 @@ void main() {
 
     ApiPrefs.switchLogins(user);
 
-    expect(ApiPrefs.getAuthToken(), user.accessToken);
-    expect(ApiPrefs.getRefreshToken(), user.refreshToken);
+//    expect(ApiPrefs.getAuthToken(), user.accessToken);
+//    expect(ApiPrefs.getRefreshToken(), user.refreshToken);
     expect(ApiPrefs.getDomain(), user.domain);
     expect(ApiPrefs.getClientId(), user.clientId);
     expect(ApiPrefs.getClientSecret(), user.clientSecret);
@@ -112,8 +112,8 @@ void main() {
   test('perform logout clears out data', () async {
     var login = Login((b) => b
       ..domain = 'domain'
-      ..accessToken = 'accessToken'
-      ..refreshToken = 'refreshToken'
+//      ..accessToken = 'accessToken'
+//      ..refreshToken = 'refreshToken'
       ..user = CanvasModelTestUtils.mockUser().toBuilder());
 
     await setupPlatformChannels(
@@ -123,8 +123,8 @@ void main() {
     await ApiPrefs.addLogin(login);
 
     expect(ApiPrefs.getDomain(), login.domain);
-    expect(ApiPrefs.getAuthToken(), login.accessToken);
-    expect(ApiPrefs.getRefreshToken(), login.refreshToken);
+//    expect(ApiPrefs.getAuthToken(), login.accessToken);
+//    expect(ApiPrefs.getRefreshToken(), login.refreshToken);
     expect(ApiPrefs.getCurrentLoginUuid(), login.uuid);
 
     await ApiPrefs.performLogout(switchingLogins: true);
@@ -152,8 +152,8 @@ void main() {
 
     var login = Login((b) => b
       ..domain = 'domain'
-      ..accessToken = 'accessToken'
-      ..refreshToken = 'refreshToken'
+//      ..accessToken = 'accessToken'
+//      ..refreshToken = 'refreshToken'
       ..user = CanvasModelTestUtils.mockUser().toBuilder());
 
     await setupPlatformChannels(
@@ -167,7 +167,7 @@ void main() {
     verify(notificationUtil.deleteNotifications([reminder.id]));
     verify(reminderDb.deleteAllForUser(login.domain, login.user.id));
     verify(calendarFilterDb.deleteAllForUser(login.domain, login.user.id));
-    verify(authApi.deleteToken(login.domain, login.accessToken));
+//    verify(authApi.deleteToken(login.domain, login.accessToken));
   });
 
   test('isMasquerading returns false if not masquerading', () async {

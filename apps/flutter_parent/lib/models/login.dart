@@ -35,9 +35,9 @@ abstract class Login implements Built<Login, LoginBuilder> {
   @nullable
   String get clientSecret;
 
-  String get accessToken;
-
-  String get refreshToken;
+//  String get accessToken;
+//
+//  String get refreshToken;
 
   User get user;
 
@@ -65,7 +65,7 @@ abstract class Login implements Built<Login, LoginBuilder> {
   static void _initializeBuilder(LoginBuilder b) => b
     ..uuid = Uuid().v4()
     ..domain = ''
-    ..accessToken = ''
-    ..refreshToken = ''
+//    ..accessToken = ''
+//    ..refreshToken = ''
     ..user = User().toBuilder();
 }

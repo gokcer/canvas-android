@@ -14,7 +14,6 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_parent/models/canvas_token.dart';
-import 'package:flutter_parent/models/login.dart';
 import 'package:flutter_parent/network/api/auth_api.dart';
 import 'package:flutter_parent/network/utils/analytics.dart';
 import 'package:flutter_parent/utils/service_locator.dart';
@@ -27,6 +26,19 @@ class AuthenticationInterceptor extends InterceptorsWrapper {
   final Dio _dio;
 
   AuthenticationInterceptor(this._dio);
+
+  @override
+  Future onRequest(RequestOptions options) async {
+    // If we aren't ignoring tokens for this request, add a token if we have one
+    if (options.extra['ignore_token'] != true) {
+      final token = await ApiPrefs.getAuthToken();
+      if (token != null) {
+        options.headers.putIfAbsent('Authorization', () => 'Bearer $token');
+      }
+    }
+
+    return options;
+  }
 
   @override
   Future onError(DioError error) async {
@@ -62,9 +74,10 @@ class AuthenticationInterceptor extends InterceptorsWrapper {
     if (tokens == null) {
       _logAuthAnalytics(AnalyticsEventConstants.TOKEN_REFRESH_FAILURE_TOKEN_NOT_VALID);
     } else {
-      Login login = currentLogin.rebuild((b) => b..accessToken = tokens.accessToken);
-      ApiPrefs.addLogin(login);
-      ApiPrefs.switchLogins(login);
+//      Login login = currentLogin.rebuild((b) => b..accessToken = tokens.accessToken);
+//      ApiPrefs.addLogin(login);
+//      ApiPrefs.switchLogins(login);
+      ApiPrefs.setTokens(tokens);
 
       // Update the header and make the request again
       RequestOptions options = error.request;

@@ -29,6 +29,7 @@ class DioConfig {
   final Map<String, String> baseHeaders;
   final Duration cacheMaxAge;
   final bool forceRefresh;
+  final bool ignoreToken;
   final PageSize pageSize;
   final Map<String, dynamic> extraQueryParams;
 
@@ -37,12 +38,14 @@ class DioConfig {
     baseHeaders = null,
     this.cacheMaxAge = Duration.zero,
     this.forceRefresh = false,
+    this.ignoreToken = false,
     this.pageSize = PageSize.none,
     this.extraQueryParams,
   })  : this.baseHeaders = baseHeaders ?? {},
         assert(baseUrl != null),
         assert(cacheMaxAge != null),
         assert(forceRefresh != null),
+        assert(ignoreToken != null),
         assert(pageSize != null);
 
   /// Creates a copy of this configuration with the given fields replaced with the new values
@@ -51,6 +54,7 @@ class DioConfig {
     Map<String, String> baseHeaders,
     Duration cacheMaxAge,
     bool forceRefresh,
+    bool ignoreToken,
     PageSize pageSize,
     Map<String, dynamic> extraQueryParams,
   }) {
@@ -59,6 +63,7 @@ class DioConfig {
       baseHeaders: baseHeaders ?? this.baseHeaders,
       cacheMaxAge: cacheMaxAge ?? this.cacheMaxAge,
       forceRefresh: forceRefresh ?? this.forceRefresh,
+      ignoreToken: ignoreToken ?? this.ignoreToken,
       pageSize: pageSize ?? this.pageSize,
       extraQueryParams: extraQueryParams ?? this.extraQueryParams,
     );
@@ -83,6 +88,10 @@ class DioConfig {
     if (cacheMaxAge != Duration.zero) {
       var extras = buildCacheOptions(cacheMaxAge, forceRefresh: forceRefresh).extra;
       options.extra.addAll(extras);
+    }
+
+    if (ignoreToken) {
+      options.extra.putIfAbsent('ignore_token', () => ignoreToken);
     }
 
     // Create Dio instance and add interceptors
@@ -125,6 +134,7 @@ class DioConfig {
     bool includeApiPath: true,
     bool forceRefresh: false,
     bool forceDeviceLanguage: false,
+    bool ignoreToken: false,
     String overrideToken: null,
     Map<String, String> extraHeaders: null,
     PageSize pageSize: PageSize.none,
@@ -139,6 +149,7 @@ class DioConfig {
       ),
       cacheMaxAge: const Duration(hours: 1),
       forceRefresh: forceRefresh,
+      ignoreToken: ignoreToken,
       pageSize: pageSize,
       extraQueryParams: extraParams,
     );
@@ -150,6 +161,7 @@ class DioConfig {
     Map<String, String> headers: null,
     Duration cacheMaxAge: Duration.zero,
     bool forceRefresh: false,
+    bool ignoreToken: false,
     PageSize pageSize: PageSize.none,
   }) {
     var baseUrl = 'https://canvas.instructure.com/';
@@ -160,6 +172,7 @@ class DioConfig {
         baseHeaders: headers,
         cacheMaxAge: cacheMaxAge,
         forceRefresh: forceRefresh,
+        ignoreToken: ignoreToken,
         pageSize: pageSize);
   }
 
@@ -198,6 +211,7 @@ Dio canvasDio({
   bool includeApiPath: true,
   bool forceRefresh: false,
   bool forceDeviceLanguage: false,
+  bool ignoreToken: false,
   String overrideToken: null,
   Map<String, String> extraHeaders: null,
   PageSize pageSize: PageSize.none,
@@ -205,6 +219,7 @@ Dio canvasDio({
   return DioConfig.canvas(
           forceRefresh: forceRefresh,
           forceDeviceLanguage: forceDeviceLanguage,
+          ignoreToken: ignoreToken,
           overrideToken: overrideToken,
           extraHeaders: extraHeaders,
           pageSize: pageSize,

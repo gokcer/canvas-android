@@ -27,14 +27,14 @@ class WebLoginInteractor {
     final tokens = await locator<AuthApi>().getTokens(result, oAuthRequest);
 
     Login login = Login((b) => b
-      ..accessToken = tokens.accessToken
-      ..refreshToken = tokens.refreshToken
+//      ..accessToken = tokens.accessToken
+//      ..refreshToken = tokens.refreshToken
       ..domain = result.baseUrl
       ..clientId = result.clientId
       ..clientSecret = result.clientSecret
       ..user = tokens.user.toBuilder());
 
-    ApiPrefs.addLogin(login);
-    ApiPrefs.switchLogins(login);
+    await ApiPrefs.addLogin(login, tokens: tokens);
+    await ApiPrefs.switchLogins(login);
   }
 }

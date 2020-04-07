@@ -17,6 +17,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_parent/models/canvas_token.dart';
 import 'package:flutter_parent/models/login.dart';
 import 'package:flutter_parent/models/serializers.dart';
 import 'package:flutter_parent/models/user.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_parent/utils/db/calendar_filter_db.dart';
 import 'package:flutter_parent/utils/db/reminder_db.dart';
 import 'package:flutter_parent/utils/notification_util.dart';
 import 'package:flutter_parent/utils/service_locator.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,14 +38,19 @@ class ApiPrefs {
   static const String KEY_LOGINS = 'logins';
   static const String KEY_CURRENT_LOGIN_UUID = 'current_login_uuid';
   static const String KEY_CURRENT_STUDENT = 'current_student';
+  static const String PREFIX_REFRESH = 'refresh_';
+  static const String PREFIX_ACCESS = 'access_';
 
-  static SharedPreferences _prefs;
   static PackageInfo _packageInfo;
+  static SharedPreferences _prefs;
+  static FlutterSecureStorage _secureStorage;
+
   static Login _currentLogin;
 
   static Future<void> init() async {
     if (_prefs == null) _prefs = await SharedPreferences.getInstance();
     _packageInfo = await PackageInfo.fromPlatform();
+    if (_secureStorage == null) _secureStorage = FlutterSecureStorage();
   }
 
   static void clean() {
@@ -60,7 +67,8 @@ class ApiPrefs {
 
   static bool isLoggedIn() {
     _checkInit();
-    return getAuthToken() != null && getDomain() != null;
+    final login = getCurrentLogin();
+    return login != null && login.currentDomain != null;
   }
 
   static Login getCurrentLogin() {
@@ -118,12 +126,25 @@ class ApiPrefs {
     await _prefs.setStringList(KEY_LOGINS, jsonList);
   }
 
-  static Future<void> addLogin(Login login) async {
+  static Future<void> addLogin(Login login, {CanvasToken tokens}) async {
     _checkInit();
     var logins = getLogins();
     logins.removeWhere((it) => it.domain == login.domain && it.user.id == login.user.id); // Remove duplicates
     logins.insert(0, login);
     await saveLogins(logins);
+    await setTokens(tokens, loginId: login.uuid);
+  }
+
+  static Future<void> setTokens(CanvasToken tokens, {String loginId}) async {
+    if (tokens == null) return;
+
+    loginId = loginId ?? getCurrentLoginUuid();
+    await _secureStorage.write(key: PREFIX_ACCESS + loginId, value: tokens.accessToken);
+
+    // Refresh token isn't given back when doing a refresh, don't update it if null
+    if (tokens.refreshToken != null) {
+      await _secureStorage.write(key: PREFIX_REFRESH + loginId, value: tokens.refreshToken);
+    }
   }
 
   static List<Login> getLogins() {
@@ -139,9 +160,11 @@ class ApiPrefs {
     Login login = logins.firstWhere((it) => it.uuid == uuid, orElse: () => null);
     if (login != null) {
       // Delete token (fire and forget - no need to await)
-      locator<AuthApi>().deleteToken(login.domain, login.accessToken);
+      locator<AuthApi>().deleteToken(login.domain, await getAuthToken(loginId: uuid));
       logins.retainWhere((it) => it.uuid != uuid);
       await saveLogins(logins);
+      await _secureStorage.delete(key: PREFIX_ACCESS + uuid);
+      await _secureStorage.delete(key: PREFIX_REFRESH + uuid);
     }
   }
 
@@ -213,9 +236,15 @@ class ApiPrefs {
 
   static String getDomain() => getCurrentLogin()?.currentDomain;
 
-  static String getAuthToken() => getCurrentLogin()?.accessToken;
+  static Future<String> getAuthToken({String loginId}) async {
+    loginId = loginId ?? getCurrentLoginUuid();
+    if (loginId == null) return null;
 
-  static String getRefreshToken() => getCurrentLogin()?.refreshToken;
+    return _secureStorage.read(key: PREFIX_ACCESS + loginId);
+  }
+
+  static Future<String> getRefreshToken({String loginId}) async =>
+      _secureStorage.read(key: PREFIX_REFRESH + (loginId ?? getCurrentLoginUuid()));
 
   static String getClientId() => getCurrentLogin()?.clientId;
 
@@ -245,12 +274,7 @@ class ApiPrefs {
     String token = null,
     Map<String, String> extraHeaders = null,
   }) {
-    if (token == null) {
-      token = getAuthToken();
-    }
-
     var headers = {
-      'Authorization': 'Bearer $token',
       'accept-language': (forceDeviceLanguage ? ui.window.locale.toLanguageTag() : effectiveLocale()?.toLanguageTag())
           .replaceAll('-', ',')
           .replaceAll('_', '-'),
@@ -259,6 +283,10 @@ class ApiPrefs {
 
     if (extraHeaders != null) {
       headers.addAll(extraHeaders);
+    }
+
+    if (token != null) {
+      headers.putIfAbsent('Authorization', () => 'Bearer $token');
     }
 
     return headers;

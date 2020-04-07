@@ -20,6 +20,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.NonNull
 import com.instructure.parentapp.plugins.DataSeedingPlugin
+//import com.instructure.parentapp.plugins.KeystorePlugin
 import com.instructure.parentapp.plugins.OldAppMigrations
 import com.instructure.parentapp.plugins.UrlLauncher
 import io.flutter.embedding.android.FlutterActivity
@@ -29,9 +30,11 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
+
+        DataSeedingPlugin.init(flutterEngine)
+//        KeystorePlugin.init(flutterEngine, applicationContext)
         OldAppMigrations.init(flutterEngine, applicationContext)
         UrlLauncher.init(flutterEngine, applicationContext, this)
-        DataSeedingPlugin.init(flutterEngine)
 
         checkForLinkEvent(intent)
     }

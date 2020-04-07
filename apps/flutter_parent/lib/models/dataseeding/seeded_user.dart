@@ -64,7 +64,7 @@ abstract class SeededUser implements Built<SeededUser, SeededUserBuilder> {
     return Login((b) => b
       ..domain = "https://$domain/"
       ..clientSecret = token
-      ..accessToken = token
+//      ..accessToken = token
       ..user.name = name
       ..user.id = id
       ..user.shortName = shortName

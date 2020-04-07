@@ -153,7 +153,7 @@ void main() {
     verify(authApi.refreshToken()).called(1);
     final actualOptions = verify(dio.request(path, options: captureAnyNamed('options'))).captured[0] as RequestOptions;
     expect(actualOptions.headers, expectedOptions.headers);
-    expect(ApiPrefs.getCurrentLogin().accessToken, tokens.accessToken);
+    expect(await ApiPrefs.getAuthToken(), tokens.accessToken);
     verifyNever(analytics.logEvent(any, extras: anyNamed('extras')));
   });
 }
