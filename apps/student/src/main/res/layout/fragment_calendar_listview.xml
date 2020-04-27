@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2016 - present Instructure, Inc.
   ~
   ~     This program is free software: you can redistribute it and/or modify
@@ -16,85 +15,28 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/calendarPage"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/calendarPage"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/canvasBackgroundWhite">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/calendarListToolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
-        android:layout_alignParentTop="true"
         android:background="@color/defaultPrimary"
         android:elevation="6dp"
+        app:title="@string/calendar"
         app:popupTheme="@style/ToolBarPopupStyle"
-        app:theme="@style/ToolBarStyle">
+        app:theme="@style/ToolBarStyle"/>
 
-        <FrameLayout
-            android:id="@+id/toolbarContentWrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
-
-    </androidx.appcompat.widget.Toolbar>
-
-    <RelativeLayout
-        android:id="@+id/calendarContainer"
+    <fragment
+        android:id="@+id/flutter_calendar_fragment"
+        android:name="com.instructure.student.fragment.FlutterCalendarFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:layout_below="@+id/calendarListToolbar">
+        android:layout_height="match_parent" />
 
-        <RelativeLayout
-            android:id="@+id/calendar1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:background="@color/caldroid_white"/>
-
-        <View
-            android:layout_below="@+id/calendar1"
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:background="@color/dividerColor"/>
-
-    </RelativeLayout>
-
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/calendarContainer"
-        android:layout_alignParentBottom="true">
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/calendarSwipeRefreshLayout"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.instructure.pandarecycler.PandaRecyclerView
-                android:id="@+id/calendarRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:cacheColorHint="@android:color/transparent"/>
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        <com.instructure.student.view.EmptyView
-            android:id="@+id/calendarEmptyView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </FrameLayout>
-
-</RelativeLayout>
+</LinearLayout>

@@ -93,7 +93,7 @@ object RouteResolver {
             cls.isA<FileListFragment>() -> FileListFragment.newInstance(route)
             cls.isA<FileSearchFragment>() -> FileSearchFragment.newInstance(route)
             cls.isA<CalendarEventFragment>() -> CalendarEventFragment.newInstance(route)
-            cls.isA<CalendarListViewFragment>() -> CalendarListViewFragment.newInstance(route)
+            cls.isA<CalendarFragment>() -> CalendarFragment.newInstance(route)
             cls.isA<FileDetailsFragment>() -> FileDetailsFragment.newInstance(route)
             cls.isA<ViewPdfFragment>() -> ViewPdfFragment.newInstance(route)
             cls.isA<ViewImageFragment>() -> ViewImageFragment.newInstance(route)
